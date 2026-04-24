@@ -4,6 +4,7 @@ import './App.css'
 function App() {
   const [todos, setTodos] = useState([])
   const [newTodo, setNewTodo] = useState('')
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     fetchTodos()
@@ -13,13 +14,15 @@ function App() {
     try {
       const response = await fetch('/api/todos')
       const data = await response.json()
-      setTodos(data)
+      setTodos(data || [])
     } catch (error) {
       console.error('Error fetching todos:', error)
+      setError('Failed to load todos')
     }
   }
 
-  const addTodo = async () => {
+  const addTodo = async (e) => {
+    e.preventDefault()
     if (newTodo.trim()) {
       try {
         const response = await fetch('/api/todos', {
@@ -32,6 +35,7 @@ function App() {
         setNewTodo('')
       } catch (error) {
         console.error('Error adding todo:', error)
+        setError('Failed to add todo')
       }
     }
   }
@@ -48,32 +52,40 @@ function App() {
       setTodos(todos.map(t => t.id === id ? updatedTodo : t))
     } catch (error) {
       console.error('Error updating todo:', error)
+      setError('Failed to update todo')
     }
   }
 
   return (
     <div className="App">
-      <h1>Todo App</h1>
-      <div>
-        <input
-          type="text"
-          value={newTodo}
-          onChange={(e) => setNewTodo(e.target.value)}
-          placeholder="Add a new todo"
-        />
-        <button onClick={addTodo}>Add</button>
-      </div>
+      <h1>📝 Todo App</h1>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <form onSubmit={addTodo}>
+        <div>
+          <input
+            type="text"
+            value={newTodo}
+            onChange={(e) => setNewTodo(e.target.value)}
+            placeholder="Add a new todo..."
+          />
+          <button type="submit">Add Todo</button>
+        </div>
+      </form>
       <ul>
-        {todos.map(todo => (
-          <li key={todo.id}>
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={() => toggleTodo(todo.id)}
-            />
-            {todo.title}
-          </li>
-        ))}
+        {todos && todos.length > 0 ? (
+          todos.map(todo => (
+            <li key={todo.id} className={todo.completed ? 'completed' : ''}>
+              <input
+                type="checkbox"
+                checked={todo.completed || false}
+                onChange={() => toggleTodo(todo.id)}
+              />
+              <span>{todo.title}</span>
+            </li>
+          ))
+        ) : (
+          <li>No todos yet. Add one to get started!</li>
+        )}
       </ul>
     </div>
   )
