@@ -1,0 +1,95 @@
+# Default values for microservices Helm chart
+
+# Frontend
+frontend:
+  replicaCount: 2
+  image:
+    repository: frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  port: 3000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+# User Service
+userService:
+  replicaCount: 2
+  image:
+    repository: user-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  port: 8081
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 80
+
+# Todo Service
+todoService:
+  replicaCount: 2
+  image:
+    repository: todo-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  port: 8082
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 80
+
+# PostgreSQL
+postgres:
+  image:
+    repository: postgres
+    tag: "15"
+  port: 5432
+  database: appdb
+  username: user
+  password: password
+  storage: 10Gi
+
+# Ingress
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: localhost
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    enabled: false
+
+# Service Monitor (for Prometheus)
+serviceMonitor:
+  enabled: false
+  interval: 30s
